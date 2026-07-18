@@ -1,0 +1,5 @@
+requests
+pycryptodome
+playwright
+undetected-chromedriver
+selenium

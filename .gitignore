@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+/*.m3u
+/*.log
+*.txt
+nul
+extract_streams.
+test_*.py
+debug_*.py
+*_test.py
+*.bak
+
+# CI output directory is tracked (contains auto-updated stream URLs)
+!output/
+output/*
+!output/*.m3u
+!output/*.json
+
+# Chrome profile
+.chrome_profile/
+
+# WorkBuddy
+.workbuddy/
