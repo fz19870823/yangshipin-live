@@ -30,6 +30,7 @@ Thumbs.db
 /*.m3u
 /*.log
 *.txt
+!requirements.txt
 nul
 extract_streams.
 test_*.py
