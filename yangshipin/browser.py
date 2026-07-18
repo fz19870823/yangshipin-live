@@ -95,6 +95,9 @@ class BrowserParser:
                 "--disable-features=IsolateOrigins,site-per-process",
                 "--disable-site-isolation-trials",
                 "--autoplay-policy=no-user-gesture-required",
+                "--disable-gpu",
+                "--disable-software-rasterizer",
+                "--single-process",  # CI 环境必需
             ]
 
             if self.browser_channel:
@@ -104,9 +107,11 @@ class BrowserParser:
                     args=launch_args,
                 )
             else:
+                # CI 环境使用 Playwright 内置 Chromium
                 browser = await pw.chromium.launch(
                     headless=self.headless,
                     args=launch_args,
+                    chromium_sandbox=False,  # 禁用沙箱以兼容 CI
                 )
 
             for i, channel in enumerate(channels):

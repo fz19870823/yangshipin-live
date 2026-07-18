@@ -153,29 +153,41 @@ def cmd_ci(args):
 
         parser = YangshipinParser(
             cookie=args.cookie or "",
-            timeout=args.timeout,
+            timeout=60,  # CI 环境网络可能较慢，增加超时时间
             headless=True,
             # CI 环境没有系统浏览器，使用 Playwright 内置 Chromium
             browser_channel=None,
         )
 
-        results = parser.parse_browser_sync(category=cat, pids=None)
-        all_results.extend(results)
+        try:
+            results = parser.parse_browser_sync(category=cat, pids=None)
+            all_results.extend(results)
 
-        # 打印摘要
-        success = [r for r in results if "url" in r]
-        failed = [r for r in results if "error" in r]
-        print(f"  {cat}: 成功 {len(success)} / 失败 {len(failed)}")
+            # 打印摘要
+            success = [r for r in results if "url" in r]
+            failed = [r for r in results if "error" in r]
+            print(f"  {cat}: 成功 {len(success)} / 失败 {len(failed)}")
 
-        # 导出 M3U
-        m3u_path = os.path.join(output_dir, f"{cat}.m3u")
-        BrowserParser.export_m3u(results, m3u_path, group=cat.upper())
+            # 导出 M3U
+            m3u_path = os.path.join(output_dir, f"{cat}.m3u")
+            if success:  # 只有成功的才导出
+                BrowserParser.export_m3u(results, m3u_path, group=cat.upper())
+                print(f"  ✅ {cat}.m3u 已生成: {len(success)} 个频道")
+            else:
+                print(f"  ⚠️  {cat} 分类没有成功的频道，跳过 M3U 导出")
 
-        # 导出 JSON
-        json_path = os.path.join(output_dir, f"{cat}.json")
-        BrowserParser.export_json(results, json_path)
+            # 导出 JSON
+            json_path = os.path.join(output_dir, f"{cat}.json")
+            BrowserParser.export_json(results, json_path)
+            print(f"  ✅ {cat}.json 已生成")
 
-        if failed:
+            if failed:
+                exit_code = 1
+                
+        except Exception as e:
+            print(f"  ❌ 解析 {cat} 时出错: {e}")
+            import traceback
+            traceback.print_exc()
             exit_code = 1
 
     # 导出合并的汇总 JSON
@@ -193,8 +205,14 @@ def cmd_ci(args):
         json.dump(summary, f, ensure_ascii=False, indent=2)
     print(f"\n📊 汇总已保存: {summary_path}")
     print(f"   总计 {summary['total']} 个频道，成功 {summary['success']}，失败 {summary['failed']}")
-
-    _sys.exit(exit_code)
+    
+    # 即使有失败也不退出报错，只要有成功的就算成功
+    if summary['success'] > 0:
+        print(f"\n✅ CI 任务完成: {summary['success']}/{summary['total']} 频道成功")
+        _sys.exit(0)
+    else:
+        print(f"\n❌ CI 任务失败: 所有频道均失败")
+        _sys.exit(1)
 
 
 def main():

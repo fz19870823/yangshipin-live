@@ -28,9 +28,13 @@ jobs:
           pip install -r requirements.txt
           playwright install chromium
           playwright install-deps chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
 
       - name: 解析直播地址
         run: python main.py --ci
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /home/runner/.cache/ms-playwright
 
       - name: 提交更新
         run: |
