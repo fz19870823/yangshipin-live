@@ -1,0 +1,17 @@
+Dockerfile
+docker-compose.yml
+live_output/
+channel_urls.json
+__pycache__/
+*.pyc
+.git/
+.workbuddy/
+*.m3u
+*.json
+test_*.py
+debug_*.py
+inspect_*.py
+simple_debug.py
+decrypted.*
+fmp4_*
+page_*

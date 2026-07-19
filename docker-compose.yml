@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  live-proxy:
+    build: .
+    container_name: ysp-live-proxy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./live_output:/app/live_output
+      - ./channel_urls.json:/app/channel_urls.json
+    environment:
+      - CMG_OUTPUT_DIR=/app/live_output
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    shm_size: "256mb"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

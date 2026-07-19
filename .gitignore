@@ -47,5 +47,38 @@ output/*
 # Chrome profile
 .chrome_profile/
 
+# Runtime output and reverse-engineering scratch files
+live_output/
+channel_urls.json
+decrypt/
+live_test/
+*.mp4
+*.264
+*.bin
+*.wasm
+*.png
+*.html
+analyze_cmg.py
+bridge_decrypt.py
+cmg_wasmtime.py
+compare_cmg_cntv.py
+extract_key.py
+find_module_script.py
+get_full_cmg_mapping.py
+inspect_page.py
+inspect_page_auto.py
+live_stream.py
+py_decrypt.py
+quick_verify.py
+simple_debug.py
+trace_wasm.py
+trace_xor.py
+verify_m3u8_key.py
+wasm_stub*.py
+
 # WorkBuddy
 .workbuddy/
+
+cmg_service.py
+test_*_v2.json
+server/decrypt_worker.py

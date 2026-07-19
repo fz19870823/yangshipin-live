@@ -3,3 +3,4 @@ pycryptodome
 playwright
 undetected-chromedriver
 selenium
+aiohttp

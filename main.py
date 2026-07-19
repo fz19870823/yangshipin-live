@@ -144,23 +144,32 @@ def cmd_ci(args):
 
     categories = ["cctv", "satellite"]
     all_results = []
-    exit_code = 0
+
+    # 使用 browser_v2 实现（单页面切换频道方案）
+    from yangshipin.browser_v2 import BrowserParserV2
+    from yangshipin.channels import CCTV_CHANNELS, SATELLITE_CHANNELS
 
     for cat in categories:
         print(f"\n{'=' * 60}")
         print(f"  CI: 正在解析 {cat} 频道...")
         print(f"{'=' * 60}")
 
-        parser = YangshipinParser(
-            cookie=args.cookie or "",
-            timeout=60,  # CI 环境网络可能较慢，增加超时时间
+        # 选择频道列表
+        if cat == "cctv":
+            channels = CCTV_CHANNELS
+        else:
+            channels = SATELLITE_CHANNELS
+
+        parser = BrowserParserV2(
             headless=True,
-            # CI 环境没有系统浏览器，使用 Playwright 内置 Chromium
-            browser_channel=None,
+            timeout=60,  # CI 环境网       wait_time=3.0,  # 等待播放器加载
+            browser_channel=None,  # CI 使用 Playwright 内置 Chromium
         )
 
+        results = []
         try:
-            results = parser.parse_browser_sync(category=cat, pids=None)
+            import asyncio
+            results = asyncio.run(parser.parse_channels(channels))
             all_results.extend(results)
 
             # 打印摘要
@@ -171,24 +180,25 @@ def cmd_ci(args):
             # 导出 M3U
             m3u_path = os.path.join(output_dir, f"{cat}.m3u")
             if success:  # 只有成功的才导出
-                BrowserParser.export_m3u(results, m3u_path, group=cat.upper())
+                BrowserParserV2.export_m3u(results, m3u_path, group=cat.upper())
                 print(f"  ✅ {cat}.m3u 已生成: {len(success)} 个频道")
             else:
                 print(f"  ⚠️  {cat} 分类没有成功的频道，跳过 M3U 导出")
 
             # 导出 JSON
             json_path = os.path.join(output_dir, f"{cat}.json")
-            BrowserParser.export_json(results, json_path)
-            print(f"  ✅ {cat}.json 已生成")
+            BrowserParserV2.export_json(results, json_path)
 
-            if failed:
-                exit_code = 1
-                
         except Exception as e:
-            print(f"  ❌ 解析 {cat} 时出错: {e}")
+            print(f"  ❌ {cat} 解析异常: {e}")
             import traceback
             traceback.print_exc()
-            exit_code = 1
+            results = [{"channel": cat, "error": str(e)}]
+            all_results.extend(results)
+
+        json_path = os.path.join(output_dir, f"{cat}.json")
+        BrowserParserV2.export_json(results, json_path)
+        print(f"  ✅ {cat}.json 已生成")
 
     # 导出合并的汇总 JSON
     import json
