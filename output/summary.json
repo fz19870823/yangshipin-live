@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-27T06:31:48.862950",
+  "generated_at": "2026-08-27T18:45:54.024169",
   "source": "yangshipin.cn (GitHub Actions CI)",
   "total": 57,
-  "success": 36,
-  "failed": 21
+  "success": 53,
+  "failed": 4
 }
